@@ -206,6 +206,7 @@ def generate_report(
                 ("机械接触数", dems.get("n_mechanical_contacts")),
                 ("最大重叠（相对）", (dems.get("relaxation") or {}).get("max_overlap_rel")),
                 ("引擎状态", dems.get("engine_status")),
+                ("model_status", dems.get("model_status")),
             ],
         )
     )

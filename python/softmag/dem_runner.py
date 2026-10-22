@@ -576,6 +576,7 @@ def generate_packing(
     summary = {
         "schema_version": "1.0",
         "created_utc": timestamp_utc(),
+        "model_status": "conditional",
         "engine": "simplified_position_based",
         "engine_status": "prototype_not_validated_against_experiment",
         "boundary": dem.boundary,
@@ -687,6 +688,7 @@ def load_external_structure(
     if "normal_force_N" not in contacts.columns:
         contacts["normal_force_N"] = 0.0
     summary = {
+        "model_status": "conditional",
         "engine": "external_import",
         "engine_status": "external_structure_assumed_validated_by_user",
         "n_particles": int(len(df)),
@@ -697,6 +699,10 @@ def load_external_structure(
         ),
         "warnings": [
             "外部结构按原样使用；本项目未验证其接触模型、密度或周期性。"
+        ],
+        "assumptions": [
+            "外部 DEM 粒子和接触表由用户提供并视为已验证",
+            "外部结构未参与本项目的压实/松弛",
         ],
         "software": software_versions(),
         "created_utc": timestamp_utc(),
