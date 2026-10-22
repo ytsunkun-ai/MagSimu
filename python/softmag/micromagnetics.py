@@ -67,9 +67,36 @@ def build_julia_job(
     material = prediction.material
     phi, phi_source, phi_warnings = prediction.resolve_magnetic_volume_fraction()
     ext = _mesh_extent_m(mm)
-    phase_Ms = float(mm.Ms_A_m or material.Ms_A_m or 0.0)
+    phase_Ms = float(mm.Ms_A_m if mm.Ms_A_m is not None else (material.Ms_A_m or 0.0))
     if phase_Ms <= 0:
         raise MicromagneticsError("缺少 material.Ms_A_m，无法创建微磁学作业")
+    exchange = (
+        mm.exchange_A_J_m
+        if mm.exchange_A_J_m is not None
+        else material.exchange_A_J_m
+    )
+    anisotropy = (
+        mm.anisotropy_K_J_m3
+        if mm.anisotropy_K_J_m3 is not None
+        else material.anisotropy_K_J_m3
+    )
+    damping = (
+        mm.damping_alpha
+        if mm.damping_alpha is not None
+        else material.damping_alpha
+    )
+    if exchange is None or exchange <= 0:
+        raise MicromagneticsError(
+            "缺少有效的 exchange_A_J_m；微磁学作业不使用静默默认值（可改回 fallback）"
+        )
+    if anisotropy is None or anisotropy < 0:
+        raise MicromagneticsError(
+            "缺少有效的 anisotropy_K_J_m3；微磁学作业不使用静默默认值（可改回 fallback）"
+        )
+    if damping is None or damping <= 0:
+        raise MicromagneticsError(
+            "缺少有效的 damping_alpha；微磁学作业不使用静默默认值（可改回 fallback）"
+        )
     Hmax = float(mm.hmax_A_m)
     n_steps = int(mm.n_field_steps)
     Hs = np.linspace(-Hmax, Hmax, max(n_steps, 5)).tolist()
@@ -80,17 +107,9 @@ def build_julia_job(
         "material": {
             "material_id": material.material_id,
             "Ms_A_m": phase_Ms,
-            "exchange_A_J_m": float(mm.exchange_A_J_m or material.exchange_A_J_m or 0.0),
-            "anisotropy_K_J_m3": float(
-                mm.anisotropy_K_J_m3
-                if mm.anisotropy_K_J_m3 is not None
-                else (material.anisotropy_K_J_m3 or 0.0)
-            ),
-            "damping_alpha": float(
-                mm.damping_alpha
-                if mm.damping_alpha is not None
-                else (material.damping_alpha or 0.1)
-            ),
+            "exchange_A_J_m": float(exchange),
+            "anisotropy_K_J_m3": float(anisotropy),
+            "damping_alpha": float(damping),
             "parameter_quality": contract["material"]["parameter_quality"],
         },
         "mesh": {
