@@ -1,0 +1,24 @@
+# ---------------------------------------------------------------------------
+# Project orchestrator.  Relative paths are resolved against this file.
+# ---------------------------------------------------------------------------
+schema_version: "1.0"
+run_id: "demo"
+prediction_config: "material.yaml"
+dem_config: "dem.yaml"
+micromagnetics_config: "micromagnetics.yaml"
+experiment_config: "experiment.yaml"
+output_dir: "../results"
+steps:
+  - validate
+  - particles
+  - dem
+  - structure
+  - micromagnetics
+  - homogenize
+  - losses
+  - dielectric
+  - calibrate
+  - uncertainty
+  - report
+random_seed: 12345
+notes: "End-to-end demonstration; every material number is a D-grade placeholder."

@@ -1,0 +1,28 @@
+# ---------------------------------------------------------------------------
+# DEM settings for the built-in simplified position-based packing engine.
+# This is a geometric prototype, NOT a validated contact-dynamics DEM.
+# For production, import particles/contacts from YADE, LIGGGHTS or another
+# validated engine via engine: external.
+# ---------------------------------------------------------------------------
+engine: "simplified"
+n_particles: 1200
+target_particle_volume_fraction: 0.60
+initial_particle_volume_fraction: 0.25
+max_relax_iterations: 2500
+relaxation_factor: 0.55
+overlap_tolerance_rel: 0.002
+max_compaction_steps: 20
+compaction_step_fraction: 0.03
+contact_gap_tolerance_rel: 0.08
+boundary: "periodic"
+youngs_modulus_Pa: 2.0e11
+poisson_ratio: 0.30
+friction_coefficient: 0.30
+restitution: 0.50
+target_pressure_Pa: 8.0e8
+random_seed: 12345
+external_particles_csv: null
+external_contacts_csv: null
+rve_fractions: [0.25, 0.35, 0.5, 0.75, 1.0]
+rve_repeats: 5
+notes: "All parameters are placeholders for the demonstration run."

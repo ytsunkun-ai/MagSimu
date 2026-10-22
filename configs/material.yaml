@@ -1,0 +1,102 @@
+# ---------------------------------------------------------------------------
+# Material / particle / excitation input contract (Appendix A)
+#
+# ALL NUMBERS IN THIS FILE ARE PLACEHOLDERS FOR CODE DEMONSTRATION ("D" grade).
+# They are NOT measured FeSiCr data and must not be quoted as such.
+# Replace every field with traceable measurements before interpreting results.
+# ---------------------------------------------------------------------------
+schema_version: "1.0"
+
+material:
+  material_id: "FeSiCr_DEMO_PLACEHOLDER"
+  composition: "Fe-Si-Cr (placeholder composition)"
+  density_kg_m3: 7150.0
+  Ms_A_m: 1.25e6
+  exchange_A_J_m: 1.0e-11
+  anisotropy_K_J_m3: 8000.0
+  damping_alpha: 0.30
+  magnetostriction_lambda_s: 1.0e-5
+  resistivity_ohm_m: 1.2e-6
+  initial_permeability: 150.0
+  grain_size_m: 5.0e-6
+  heat_treatment: "placeholder: 800 C / 1 h / N2"
+  parameter_source: "PLACEHOLDER values generated for the project demo; not a material record"
+  parameter_quality: "D"
+  source_type: "assumed"
+  source_ref: "NOT A REAL MATERIAL RECORD"
+  uncertainty:
+    Ms_A_m: 0.05
+    exchange_A_J_m: 0.20
+    anisotropy_K_J_m3: 0.30
+    resistivity_ohm_m: 0.10
+    density_kg_m3: 0.01
+    initial_permeability: 0.25
+  notes: "D-grade parameters may only be used for code verification and sensitivity studies."
+
+particle:
+  size_distribution_type: "measured"
+  d10_m: 1.0e-5
+  d50_m: 2.0e-5
+  d90_m: 3.6e-5
+  quantile_basis: "volume"
+  distribution_file: null
+  distribution_weight_type: "number"
+  distribution_diameter_unit: "m"
+  shape_model: "sphere"
+  aspect_ratio: 1.0
+  measurement_method: "placeholder laser diffraction"
+  dispersion_state: "dry powder"
+  notes: "D10/D50/D90 are placeholders."
+
+insulation:
+  thickness_mean_m: 1.0e-7
+  thickness_std_m: 2.0e-8
+  thickness_distribution: "lognormal"
+  relative_permittivity: 4.0
+  resistivity_ohm_m: 1.0e8
+  defect_probability: 0.002
+  breakdown_field_V_m: 6.0e7
+  coating_material: "placeholder phosphate/alumina-like coating"
+  data_source: "PLACEHOLDER"
+  notes: "Coating parameters are placeholders."
+
+compaction:
+  target_bulk_density_kg_m3: 4290.0
+  target_relative_density: 0.60
+  pressure_Pa: 8.0e8
+  friction_coefficient: 0.30
+  dem_engine: "simplified"
+  random_seed: 12345
+  notes: "Low-density demo compact; all values are placeholders."
+
+microstructure:
+  magnetic_volume_fraction: 0.60
+  porosity_fraction: 0.37
+  coating_volume_fraction: 0.03
+  rve_size_m: null
+  notes: "Phase fractions are consistent with the placeholder bulk density, not with a real core."
+
+excitation:
+  frequency_hz: 100000.0
+  flux_density_definition: "peak"
+  flux_density_peak_T: 0.05
+  temperature_K: 293.15
+  waveform: "sinusoidal"
+  dc_bias_A_m: 0.0
+  notes: "100 kHz, 50 mT peak: demonstration condition only."
+
+solver:
+  micromagnetic_package: "MicroMagnetic.jl"
+  dem_model: "simplified_position_based_dem"
+  mesh_convergence_required: true
+  uncertainty_analysis: true
+  allow_fallback_models: true
+  notes: "Fallback models must be labelled in every output."
+
+provenance:
+  experiment_id: "DEMO-000"
+  operator: "demo"
+  date: "2026-10-23"
+  notes: "Synthetic demonstration input. Do not cite as experimental data."
+  source_refs:
+    - "project description: soft magnetic powder core multi-scale modelling plan"

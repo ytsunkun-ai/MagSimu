@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "softmag-predictor"
+version = "0.1.0"
+description = "Multi-scale electromagnetic performance predictor for soft magnetic powder cores (Python + Julia + DEM + micromagnetics)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "MicroMagnetic project" }]
+keywords = [
+  "soft magnetic composite",
+  "powder core",
+  "discrete element method",
+  "micromagnetics",
+  "eddy current loss",
+  "dielectric breakdown",
+]
+dependencies = [
+  "numpy>=1.26",
+  "scipy>=1.11",
+  "pandas>=2.0",
+  "PyYAML>=6.0",
+  "matplotlib>=3.8",
+  "pydantic>=2.5",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+softmag = "softmag.cli:main"
+
+[tool.setuptools]
+package-dir = { "" = "python" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["python"]
+include = ["softmag*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["python"]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = [
+  "ignore::DeprecationWarning",
+]

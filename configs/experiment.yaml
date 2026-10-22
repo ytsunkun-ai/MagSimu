@@ -1,0 +1,19 @@
+# ---------------------------------------------------------------------------
+# Experimental data and calibration settings.
+# Paths are resolved relative to this file.  Set a path to null to disable
+# that data source.  See data/README.md for the expected CSV columns.
+# ---------------------------------------------------------------------------
+bh_curve_csv: "../data/raw/example_bh_placeholder.csv"
+loss_csv: "../data/raw/example_loss_placeholder.csv"
+breakdown_csv: "../data/raw/example_breakdown_placeholder.csv"
+calibration:
+  fit_loop_model: true
+  fit_loss_separation: true
+  fit_steinmetz: true
+  fit_weibull: true
+  bootstrap_samples: 200
+  random_seed: 12345
+  train_fraction: 0.7
+  group_column: null
+  notes: "Example files are synthetic placeholders. Replace them with measured data."
+notes: "Never use synthetic demo data for quantitative conclusions."

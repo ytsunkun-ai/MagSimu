@@ -1,0 +1,23 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+build/
+dist/
+*.egg-info/
+
+# Results are generated; keep the directory marker.
+results/*
+!results/.gitkeep
+
+# Local data products
+data/processed/*
+!data/processed/.gitkeep
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
