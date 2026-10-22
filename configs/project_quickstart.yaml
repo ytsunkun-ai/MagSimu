@@ -1,0 +1,28 @@
+# ---------------------------------------------------------------------------
+# Fast end-to-end project: Python tanh fallback, no Julia required.
+#
+# Use this for the first workflow check.  To run the real MicroMagnetic.jl path,
+# use configs/project.yaml after installing Julia and running julia/setup.jl.
+# Every material/insulation/loss/breakdown number is still a D-grade placeholder.
+# ---------------------------------------------------------------------------
+schema_version: "1.0"
+run_id: "quickstart"
+prediction_config: "material.yaml"
+dem_config: "dem.yaml"
+micromagnetics_config: "micromagnetics_fallback.yaml"
+experiment_config: "experiment.yaml"
+output_dir: "../results"
+steps:
+  - validate
+  - particles
+  - dem
+  - structure
+  - micromagnetics
+  - homogenize
+  - losses
+  - dielectric
+  - calibrate
+  - uncertainty
+  - report
+random_seed: 12345
+notes: "Fast fallback workflow check; not a MicroMagnetic.jl or FeSiCr result."

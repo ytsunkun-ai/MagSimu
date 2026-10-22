@@ -7,20 +7,27 @@
 
 ## 快速开始
 
-Windows PowerShell：
+Windows PowerShell。先跑不需要 Julia 的快速流程（明确使用 tanh fallback）：
 
 ```powershell
 uv venv .venv
 uv pip install --python .venv\Scripts\python.exe -e .
-.venv\Scripts\python.exe -m softmag validate --project configs/project.yaml
-.venv\Scripts\python.exe -m softmag run-all --project configs/project.yaml --run-id demo
+.venv\Scripts\python.exe -m softmag validate --project configs/project_quickstart.yaml
+.venv\Scripts\python.exe -m softmag run-all --project configs/project_quickstart.yaml --run-id quickstart
 ```
 
-或者使用可编辑安装后的命令：
+真实 MicroMagnetic.jl 路径（先完成 [Julia 部署](docs/deployment.md)）：
 
 ```powershell
-softmag run-all --project configs/project.yaml
+julia --project=julia julia/setup.jl
+.venv\Scripts\python.exe -m softmag julia-check --project configs/project.yaml
+.venv\Scripts\python.exe -m softmag run-all --project configs/project.yaml --run-id demo_julia
 ```
+
+`configs/project.yaml` 的 `mode: auto` 会优先调用 Julia；默认 64×16×16 / 41 点完整回线
+属于代表性子体积计算，耗时取决于机器，首次运行还会有 JIT 编译。先用 `julia-check`
+验证契约，再按需要调整网格和场步数。也可使用可编辑安装后的 `softmag` 命令替代
+`.venv\Scripts\python.exe -m softmag`。
 
 输出在 `results/<run_id>/`，其中：
 
@@ -45,17 +52,39 @@ run_results.json
 
 ```powershell
 .venv\Scripts\python.exe -m pytest -q
+# 可选：真实 Julia 集成测试
+$env:SOFTMAG_TEST_JULIA = "1"
+.venv\Scripts\python.exe -m pytest -q tests/test_julia_integration.py
 ```
+
+## 已验证的 Julia 环境
+
+本机已按 [docs/deployment.md](docs/deployment.md) 完成部署，并跑通真实的
+Python → `julia/hysteresis.jl` → MicroMagnetic.jl → `loop.csv` / `result.json`
+契约检查：
+
+| 项目 | 已验证值 |
+|---|---|
+| 操作系统 | Windows 11 10.0.26100 |
+| Julia | 1.11.9 |
+| MicroMagnetic.jl | 0.6.0（由 `julia/Project.toml` + `julia/Manifest.toml` 固定） |
+| Python | 3.12.15 |
+| 契约烟测 | `softmag julia-check`：`status=passed`，10 点完整回线，`max|B-μ0(H+φM)|=0` |
+
+该烟测只验证接口、单位和状态标记，**不证明网格收敛或定量材料性能**。完整部署、
+环境变量、故障排查和日常使用见 [docs/deployment.md](docs/deployment.md)。
 
 ## 目录结构
 
 ```text
-configs/                输入 YAML（材料、DEM、微磁、实验、项目编排）
+configs/                输入 YAML（材料、DEM、微磁、实验、项目编排、快速 fallback）
+docs/                   架构、验证边界、Julia 部署与使用指南
 python/softmag/         Python 包
-julia/                  MicroMagnetic.jl 作业脚本和 Project.toml
-tests/                  单元与端到端测试
+julia/                  MicroMagnetic.jl 作业脚本、Project.toml、Manifest.toml
+tests/                  单元、端到端和可选真实 Julia 集成测试
 data/raw/               synthetic placeholder CSV（不可用于定量结论）
 results/                每次运行的隔离输出
+scripts/                辅助脚本
 ```
 
 ## 主要模块
@@ -77,21 +106,25 @@ results/                每次运行的隔离输出
 
 ## MicroMagnetic.jl
 
-Julia 不是运行 Python 回退流程的必需条件。真实微磁接口需要 Julia ≥ 1.11：
+Julia 不是运行 Python 回退流程的必需条件。真实微磁接口需要 **Julia ≥ 1.11** 和
+**MicroMagnetic.jl 0.6.x**（registry 当前没有 0.7；不要手工改成 `0.7`）：
 
 ```powershell
 julia --project=julia julia/setup.jl
+.venv\Scripts\python.exe -m softmag julia-check --project configs/project.yaml
 julia --project=julia julia/hysteresis.jl --input job.json --output outdir
 ```
 
-`python/softmag/micromagnetics.py` 生成 `job.json` 并调用 `julia/hysteresis.jl`。如果 Julia 或
+`python/softmag/micromagnetics.py` 生成 `job.json` 并调用 `julia/hysteresis.jl`；Julia 在
+临时工作目录中运行，不会把 MicroMagnetic 的 saver/快照文件写进仓库。如果 Julia 或
 MicroMagnetic.jl 不可用，`auto` 模式会回退到 **tanh 唯象大回线**，并在每个输出中标记：
 
 - `engine = python_tanh_fallback`
 - `model_status = fallback_reduced_order`
 - 明确的 `fallback_reason`
 
-回退不是微磁学结果，不能替代真实 MicroMagnetic.jl 计算。
+回退不是微磁学结果，不能替代真实 MicroMagnetic.jl 计算。`julia-check` 会关闭 fallback，
+只要找不到 Julia 或契约不合格就直接失败，避免把回退误判为真实验证。
 
 ## 数据契约与单位
 

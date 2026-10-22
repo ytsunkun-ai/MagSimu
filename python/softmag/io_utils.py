@@ -213,6 +213,8 @@ def julia_version(executable: str = "julia", timeout_s: int = 10) -> str | None:
             [exe, "--version"],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=timeout_s,
             check=False,
         )

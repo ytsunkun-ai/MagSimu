@@ -16,6 +16,16 @@ results/*
 data/processed/*
 !data/processed/.gitkeep
 
+# Julia transient artefacts (MicroMagnetic saver/precompile workloads)
+.julia/
+_precompile_*/
+_precompile_*.txt
+*_llg.txt
+*_hysteresis/
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+
 # IDE / OS
 .idea/
 .vscode/

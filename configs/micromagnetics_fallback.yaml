@@ -1,0 +1,37 @@
+# ---------------------------------------------------------------------------
+# Explicit fallback-only micromagnetics settings.
+#
+# This file is intentionally separate from micromagnetics.yaml.  It is used by
+# configs/project_quickstart.yaml so a first end-to-end run is fast and does not
+# accidentally launch a long MicroMagnetic.jl job.  Every output is labelled:
+#   engine = python_tanh_fallback
+#   model_status = fallback_reduced_order
+#
+# NEVER interpret these loops as micromagnetics or real FeSiCr data.
+# ---------------------------------------------------------------------------
+package: "MicroMagnetic.jl"
+mode: "fallback"
+julia_executable: "julia"
+timeout_s: 3600
+particle_shape: "box"
+mesh_nx: 64
+mesh_ny: 16
+mesh_nz: 16
+dx_m: 5.0e-9
+dy_m: 5.0e-9
+dz_m: 5.0e-9
+n_cluster_particles: 7
+Ms_A_m: null
+exchange_A_J_m: null
+anisotropy_K_J_m3: null
+damping_alpha: null
+demag: true
+m0: [-1.0, 0.0, 0.0]
+stopping_dmdt: 0.01
+hmax_A_m: 4.0e5
+n_field_steps: 41
+sweep: "full_loop"
+fallback_model: "tanh_major_loop"
+loop_initial: null
+output_subdir: "hysteresis"
+notes: "Fallback-only project for a fast end-to-end workflow check."

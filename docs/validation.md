@@ -18,6 +18,32 @@
 .venv\Scripts\python.exe -m pytest -q
 ```
 
+## 真实 Julia / MicroMagnetic.jl 验证
+
+已在 Windows 11 + Julia 1.11.9 + MicroMagnetic.jl 0.6.0 上完成：
+
+- `julia/setup.jl` 按 `julia/Project.toml` / `julia/Manifest.toml` 实例化并预编译；
+- `softmag julia-check` 强制真实 Julia、关闭 fallback，跑通 8×4×2 `box` 与
+  16×16×8 `sphere`/`cluster` 的 5 场点完整回线；
+- Julia 写出 `loop.csv` 与 `result.json`，Python 回读并计算
+  `B = μ0(H + φM)`，闭合误差为 0；
+- 形状未覆盖任何磁性单元时明确报错，不输出 NaN；
+- Python 默认测试与真实 Julia 集成测试通过。
+
+命令：
+
+```powershell
+julia --startup-file=no --project=julia julia/setup.jl
+.venv\Scripts\python.exe -m softmag julia-check --project configs/project.yaml
+$env:SOFTMAG_TEST_JULIA = "1"
+.venv\Scripts\python.exe -m pytest -q tests/test_julia_integration.py
+```
+
+该烟测只证明接口、单位、状态和回读契约成立，**不证明网格收敛、RVE 代表性或材料
+参数的真实性**。默认 64×16×16 / 41 场点完整作业未在本次验证中跑完；不得据烟测宣称
+定量精度。部署步骤、输出契约和故障排查见
+[`docs/deployment.md`](deployment.md)。
+
 ## 必须补充的实验验证
 
 1. 粒径分布：激光衍射/图像分析，明确 number/volume 基。

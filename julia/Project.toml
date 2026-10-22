@@ -4,5 +4,5 @@ MicroMagnetic = "cef16ca0-16a8-11ef-389e-9fbcf1974e83"
 
 [compat]
 JSON = "1"
-MicroMagnetic = "0.7"
+MicroMagnetic = "0.6"
 julia = "1.11"

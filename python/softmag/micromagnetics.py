@@ -184,6 +184,10 @@ def run_julia_job(
     resolved = shutil.which(exe)
     if resolved is None:
         raise MicromagneticsError(f"找不到 Julia 可执行文件：{exe}")
+    # Run with cwd=outdir so MicroMagnetic's saver / snapshot side products
+    # never pollute the repository.  Use absolute paths in the child process.
+    job_path = Path(job_path).resolve()
+    out = ensure_dir(outdir).resolve()
     cmd = [
         resolved,
         f"--project={project_root() / 'julia'}",
@@ -191,14 +195,16 @@ def run_julia_job(
         "--input",
         str(job_path),
         "--output",
-        str(outdir),
+        str(out),
     ]
     try:
         proc = subprocess.run(
             cmd,
-            cwd=str(project_root()),
+            cwd=str(out),
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=int(mm.timeout_s),
             check=False,
         )

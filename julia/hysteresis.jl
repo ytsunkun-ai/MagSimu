@@ -13,6 +13,10 @@ using MicroMagnetic
 using DelimitedFiles
 using Printf
 
+# Define cluster-shape helpers before main() is compiled.  Including this file
+# inside main() would create a world-age error when make_cluster is first called.
+include(joinpath(@__DIR__, "particle_cluster.jl"))
+
 const MU0 = 4.0e-7 * pi
 
 function parse_args(args)
@@ -81,7 +85,6 @@ function main()
         shape_note = @sprintf("sphere radius %.3e m (clipped to mesh sub-volume)", r)
         push!(warnings, "sphere 仅覆盖代表性子体积，不能代表完整颗粒。")
     elseif shape_cfg["model"] == "cluster"
-        include(joinpath(@__DIR__, "particle_cluster.jl"))
         r = 0.14 * minimum(extent)
         shape = make_cluster(Int(shape_cfg["n_cluster_particles"]), r, 2.3 * r)
         set_Ms(sim, shape, Ms)
@@ -91,6 +94,16 @@ function main()
     else
         set_Ms(sim, Ms)
         push!(warnings, "box 是颗粒内部代表性子体积，不是完整颗粒。")
+    end
+
+    # A very coarse mesh combined with a small sphere/cluster can select zero
+    # cells.  MicroMagnetic would then divide by zero in average_m; fail with an
+    # actionable message instead of emitting a NaN loop.
+    if all(iszero, Array(sim.mu0_Ms))
+        error(@sprintf(
+            "shape %s selects no magnetic cells on %dx%dx%d mesh; increase the mesh resolution or the shape size",
+            shape_cfg["model"], mesh_cfg["nx"], mesh_cfg["ny"], mesh_cfg["nz"],
+        ))
     end
 
     A > 0 && add_exch(sim, A)
@@ -103,14 +116,27 @@ function main()
     full_loop = Bool(sweep["full_loop"])
     # MicroMagnetic's hysteresis returns Nothing when full_loop=false.  We always
     # compute a full loop and truncate the returned data for up_only jobs.
-    H_mT, m = hysteresis(
-        sim, Hs;
-        direction=Tuple(Float64.(sweep["direction"])),
-        stopping_dmdt=Float64(sim_cfg["stopping_dmdt"]),
-        max_steps=10000,
-        output="none",
-        full_loop=true,
-    )
+    #
+    # Run the sweep in a scratch directory: even with output="none" the package
+    # creates a "<name>_hysteresis" folder and a relaxation log.  Those are
+    # transient side products, not part of the Python-Julia contract.
+    scratch = mktempdir()
+    original_dir = pwd()
+    loop = try
+        cd(scratch)
+        hysteresis(
+            sim, Hs;
+            direction=Tuple(Float64.(sweep["direction"])),
+            stopping_dmdt=Float64(sim_cfg["stopping_dmdt"]),
+            max_steps=10000,
+            output="none",
+            full_loop=true,
+        )
+    finally
+        cd(original_dir)
+        rm(scratch; recursive=true, force=true)
+    end
+    H_mT, m = loop
     n_forward = length(Hs)
     if !full_loop
         H_mT = H_mT[1:n_forward]
